@@ -1,0 +1,9 @@
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.csproj.AssemblyReference.cache
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\rpswa.dswa.cache.json
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.GeneratedMSBuildEditorConfig.editorconfig
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.AssemblyInfoInputs.cache
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.AssemblyInfo.cs
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.csproj.CoreCompileInputs.cache
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.MvcApplicationPartsAssemblyInfo.cs
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.sourcelink.json
