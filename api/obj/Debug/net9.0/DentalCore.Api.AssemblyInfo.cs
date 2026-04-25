@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DentalCore.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+291aa55a3c4288158a4cd2b78dc72d64d1b897a0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+47d3b95d57448737c12901b57ec67755e2e582f6")]
 [assembly: System.Reflection.AssemblyProductAttribute("DentalCore.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DentalCore.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
