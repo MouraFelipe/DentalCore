@@ -155,3 +155,7 @@ C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\refint\DentalCore.Api.d
 C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.pdb
 C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\DentalCore.Api.genruntimeconfig.cache
 C:\meus_projetos\dentERP\DentalCore\api\obj\Debug\net9.0\ref\DentalCore.Api.dll
+C:\meus_projetos\dentERP\DentalCore\api\bin\Debug\net9.0\DentalCore.Domain.dll
+C:\meus_projetos\dentERP\DentalCore\api\bin\Debug\net9.0\DentalCore.Infra.dll
+C:\meus_projetos\dentERP\DentalCore\api\bin\Debug\net9.0\DentalCore.Domain.pdb
+C:\meus_projetos\dentERP\DentalCore\api\bin\Debug\net9.0\DentalCore.Infra.pdb

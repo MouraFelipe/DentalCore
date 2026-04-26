@@ -1191,6 +1191,29 @@
         "build": {
           "buildTransitive/net6.0/_._": {}
         }
+      },
+      "DentalCore.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/DentalCore.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/DentalCore.Domain.dll": {}
+        }
+      },
+      "DentalCore.Infra/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "dependencies": {
+          "DentalCore.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/DentalCore.Infra.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/DentalCore.Infra.dll": {}
+        }
       }
     }
   },
@@ -3559,10 +3582,22 @@
         "system.threading.channels.nuspec",
         "useSharedDesignerContext.txt"
       ]
+    },
+    "DentalCore.Domain/1.0.0": {
+      "type": "project",
+      "path": "../domain/DentalCore.Domain.csproj",
+      "msbuildProject": "../domain/DentalCore.Domain.csproj"
+    },
+    "DentalCore.Infra/1.0.0": {
+      "type": "project",
+      "path": "../infra/DentalCore.Infra.csproj",
+      "msbuildProject": "../infra/DentalCore.Infra.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net9.0": [
+      "DentalCore.Domain >= 1.0.0",
+      "DentalCore.Infra >= 1.0.0",
       "Microsoft.AspNetCore.OpenApi >= 9.0.8",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.2",
       "Microsoft.EntityFrameworkCore.Sqlite >= 9.0.2",
@@ -3601,7 +3636,14 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\meus_projetos\\dentERP\\DentalCore\\domain\\DentalCore.Domain.csproj": {
+              "projectPath": "C:\\meus_projetos\\dentERP\\DentalCore\\domain\\DentalCore.Domain.csproj"
+            },
+            "C:\\meus_projetos\\dentERP\\DentalCore\\infra\\DentalCore.Infra.csproj": {
+              "projectPath": "C:\\meus_projetos\\dentERP\\DentalCore\\infra\\DentalCore.Infra.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

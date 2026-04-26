@@ -20,4 +20,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\domain\DentalCore.Domain.csproj" />
+    <ProjectReference Include="..\infra\DentalCore.Infra.csproj" />
+  </ItemGroup>
+
 </Project>
