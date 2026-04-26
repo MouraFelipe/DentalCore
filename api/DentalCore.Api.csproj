@@ -25,4 +25,8 @@
     <ProjectReference Include="..\infra\DentalCore.Infra.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="**\*.db;**\*.db-journal;**\*.db-shm;**\*.db-wal;**\*.sqlite" Watch="false" />
+  </ItemGroup>
+
 </Project>

@@ -5,144 +5,154 @@ using DentalCore.API.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace DentalCore.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-[Produces("application/json")]
-public class PacienteController : ControllerBase
+namespace DentalCore.API.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public PacienteController(AppDbContext context)
+    /// <summary>
+    /// Controller responsável por gerenciar os pacientes da clínica.
+    /// Implementa Soft Delete (exclusão lógica) para manter a integridade dos históricos de consulta.
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    public class PacienteController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    [HttpGet]
-    public async Task<IActionResult> ListarTodos()
-    {
-        var pacientes = await _context.Pacientes
-            .Select(p => new PacienteResponseDto
+        public PacienteController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        // ════════════════════════════════════════════════════════════════════════
+        // POST /api/paciente
+        // Cria um novo paciente
+        // ════════════════════════════════════════════════════════════════════════
+        [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<PacienteResponseDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<PacienteResponseDto>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Criar([FromBody] PacienteRequestDto dto)
+        {
+            var cpfJaExiste = await _context.Pacientes.AnyAsync(p => p.Cpf == dto.Cpf);
+            if (cpfJaExiste)
+                return BadRequest(ApiResponse<PacienteResponseDto>.Erro("CPF já cadastrado."));
+
+            var paciente = new Paciente
             {
-                Id = p.Id,
-                Nome = p.Nome,
-                Cpf = p.Cpf,
-                Telefone = p.Telefone,
-                DataCadastro = p.DataCadastro,
-                TotalConsultas = p.Consultas.Count()
-            })
-            .ToListAsync();
+                Nome = dto.Nome,
+                Cpf = dto.Cpf,
+                Telefone = dto.Telefone,
+                DataCadastro = DateTime.UtcNow
+            };
 
-        return Ok(ApiResponse<List<PacienteResponseDto>>.Ok(pacientes));
-    }
+            _context.Pacientes.Add(paciente);
+            await _context.SaveChangesAsync();
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> ObterPorId(int id)
-    {
-        var paciente = await _context.Pacientes
-            .Include(p => p.Consultas)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            var response = MapToResponseDto(paciente);
 
-        if (paciente == null)
-            return NotFound(ApiResponse<PacienteResponseDto>.Erro($"Paciente com Id {id} não encontrado."));
+            return CreatedAtAction(
+                nameof(ObterPorId), 
+                new { id = paciente.Id }, 
+                ApiResponse<PacienteResponseDto>.Ok(response, "Paciente cadastrado com sucesso.")
+            );
+        }
 
-        var response = new PacienteResponseDto
+        // ════════════════════════════════════════════════════════════════════════
+        // GET /api/paciente
+        // Lista todos os pacientes ativos
+        // ════════════════════════════════════════════════════════════════════════
+        [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<List<PacienteResponseDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ListarTodos()
         {
-            Id = paciente.Id,
-            Nome = paciente.Nome,
-            Cpf = paciente.Cpf,
-            Telefone = paciente.Telefone,
-            DataCadastro = paciente.DataCadastro,
-            TotalConsultas = paciente.Consultas.Count
-        };
+            var pacientes = await _context.Pacientes
+                .Include(p => p.Consultas)
+                .OrderBy(p => p.Nome)
+                .ToListAsync();
 
-        return Ok(ApiResponse<PacienteResponseDto>.Ok(response));
-    }
+            var response = pacientes.Select(MapToResponseDto).ToList();
 
-    [HttpPost]
-    public async Task<IActionResult> Criar([FromBody] PacienteRequestDto dto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ApiResponse<PacienteResponseDto>.Erro("Dados inválidos."));
+            return Ok(ApiResponse<List<PacienteResponseDto>>.Ok(response));
+        }
 
-        var cpfJaExiste = await _context.Pacientes.AnyAsync(p => p.Cpf == dto.Cpf);
-        if (cpfJaExiste)
-            return BadRequest(ApiResponse<PacienteResponseDto>.Erro("CPF já cadastrado."));
-
-        var paciente = new Paciente
+        // ════════════════════════════════════════════════════════════════════════
+        // GET /api/paciente/{id}
+        // Busca um paciente específico
+        // ════════════════════════════════════════════════════════════════════════
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<PacienteResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<PacienteResponseDto>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ObterPorId(int id)
         {
-            Nome = dto.Nome.Trim(),
-            Cpf = dto.Cpf.Trim(),
-            Telefone = dto.Telefone?.Trim(),
-            DataCadastro = DateTime.UtcNow
-        };
+            var paciente = await _context.Pacientes
+                .Include(p => p.Consultas)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-        _context.Pacientes.Add(paciente);
-        await _context.SaveChangesAsync();
+            if (paciente == null)
+                return NotFound(ApiResponse<PacienteResponseDto>.Erro($"Paciente com Id {id} não encontrado."));
 
-        var response = new PacienteResponseDto
+            return Ok(ApiResponse<PacienteResponseDto>.Ok(MapToResponseDto(paciente)));
+        }
+
+        // ════════════════════════════════════════════════════════════════════════
+        // PUT /api/paciente/{id}
+        // Atualiza os dados cadastrais do paciente
+        // ════════════════════════════════════════════════════════════════════════
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<PacienteResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<PacienteResponseDto>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Atualizar(int id, [FromBody] PacienteRequestDto dto)
         {
-            Id = paciente.Id,
-            Nome = paciente.Nome,
-            Cpf = paciente.Cpf,
-            Telefone = paciente.Telefone,
-            DataCadastro = paciente.DataCadastro,
-            TotalConsultas = 0
-        };
+            var paciente = await _context.Pacientes.FindAsync(id);
 
-        return CreatedAtAction(nameof(ObterPorId), new { id = paciente.Id }, ApiResponse<PacienteResponseDto>.Ok(response, "Paciente criado com sucesso."));
-    }
+            if (paciente == null)
+                return NotFound(ApiResponse<PacienteResponseDto>.Erro($"Paciente com Id {id} não encontrado."));
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Atualizar(int id, [FromBody] PacienteRequestDto dto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ApiResponse<PacienteResponseDto>.Erro("Dados inválidos."));
+            var cpfJaExiste = await _context.Pacientes.AnyAsync(p => p.Cpf == dto.Cpf && p.Id != id);
+            if (cpfJaExiste)
+                return BadRequest(ApiResponse<PacienteResponseDto>.Erro("CPF já cadastrado por outro paciente."));
 
-        var paciente = await _context.Pacientes.FirstOrDefaultAsync(p => p.Id == id);
+            paciente.Nome = dto.Nome;
+            paciente.Cpf = dto.Cpf;
+            paciente.Telefone = dto.Telefone;
 
-        if (paciente == null)
-            return NotFound(ApiResponse<PacienteResponseDto>.Erro($"Paciente com Id {id} não encontrado."));
+            await _context.SaveChangesAsync();
 
-        var cpfJaExiste = await _context.Pacientes.AnyAsync(p => p.Cpf == dto.Cpf && p.Id != id);
-        if (cpfJaExiste)
-            return BadRequest(ApiResponse<PacienteResponseDto>.Erro("CPF já cadastrado por outro paciente."));
+            return Ok(ApiResponse<PacienteResponseDto>.Ok(MapToResponseDto(paciente), "Dados atualizados com sucesso."));
+        }
 
-        paciente.Nome = dto.Nome.Trim();
-        paciente.Cpf = dto.Cpf.Trim();
-        paciente.Telefone = dto.Telefone?.Trim();
+        // ════════════════════════════════════════════════════════════════════════
+        // DELETE /api/paciente/{id}
+        // Exclusão Lógica (Soft Delete)
+        // ════════════════════════════════════════════════════════════════════════
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Excluir(int id)
+        {
+            var paciente = await _context.Pacientes.FindAsync(id);
 
-        _context.Pacientes.Update(paciente);
-        await _context.SaveChangesAsync();
+            if (paciente == null)
+                return NotFound(ApiResponse<object>.Erro($"Paciente com Id {id} não encontrado."));
 
-        var response = await _context.Pacientes
-            .Where(p => p.Id == id)
-            .Select(p => new PacienteResponseDto
+            paciente.DataExclusao = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(ApiResponse<object>.Ok(null, "Paciente removido com sucesso."));
+        }
+
+        // ── MAPPER AUXILIAR ─────────────────────────────────────────────────────
+        private static PacienteResponseDto MapToResponseDto(Paciente paciente)
+        {
+            return new PacienteResponseDto
             {
-                Id = p.Id,
-                Nome = p.Nome,
-                Cpf = p.Cpf,
-                Telefone = p.Telefone,
-                DataCadastro = p.DataCadastro,
-                TotalConsultas = p.Consultas.Count()
-            })
-            .FirstAsync();
-
-        return Ok(ApiResponse<PacienteResponseDto>.Ok(response, "Paciente atualizado com sucesso."));
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Deletar(int id)
-    {
-        var paciente = await _context.Pacientes.FirstOrDefaultAsync(p => p.Id == id);
-
-        if (paciente == null)
-            return NotFound(ApiResponse<object>.Erro($"Paciente com Id {id} não encontrado."));
-
-        _context.Pacientes.Remove(paciente);
-        await _context.SaveChangesAsync();
-
-        return Ok(ApiResponse<string>.Ok("", "Paciente deletado com sucesso."));
+                Id = paciente.Id,
+                Nome = paciente.Nome,
+                Cpf = paciente.Cpf,
+                Telefone = paciente.Telefone,
+                DataCadastro = paciente.DataCadastro,
+                TotalConsultas = paciente.Consultas?.Count ?? 0
+            };
+        }
     }
 }

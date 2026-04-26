@@ -1,4 +1,5 @@
 using DentalCore.API.Data;
+using DentalCore.API.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -10,6 +11,9 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Configure CORS for Flutter
 builder.Services.AddCors(options =>
@@ -31,11 +35,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 // ── Inicializar o banco de dados com tabelas e seed data ──────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
+    DataSeeder.Seed(db);
 }
 
 // Configure the HTTP request pipeline.

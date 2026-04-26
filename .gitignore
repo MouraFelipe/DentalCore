@@ -9,3 +9,15 @@ coverage/
 **/bin/
 **/obj/
 .vs/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+build/
