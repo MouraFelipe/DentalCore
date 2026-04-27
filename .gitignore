@@ -6,3 +6,20 @@ coverage/
 *.log
 .env*
 !.env.example
+# .NET build artifacts
+**/bin/
+**/obj/
+*.user
+
+# SQLite DB files
+**/*.db
+
+# Flutter/Dart
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
+.idea/
+
