@@ -39,4 +39,10 @@ public class Consulta : BaseEntity
     /// <summary>Entidade Paciente associada (carregada via Include).</summary>
     [ForeignKey(nameof(PacienteId))]
     public Paciente? Paciente { get; set; }
+
+    /// <summary>
+    /// Coleção de pagamentos vinculados a esta consulta.
+    /// Relação 1:N para suportar pagamento parcial e múltiplas formas.
+    /// </summary>
+    public ICollection<Pagamento> Pagamentos { get; set; } = new List<Pagamento>();
 }

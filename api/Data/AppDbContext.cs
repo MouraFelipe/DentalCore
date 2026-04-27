@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     // ── DbSets (Tabelas) ───────────────────────────────────────
     public DbSet<Paciente> Pacientes { get; set; }
     public DbSet<Consulta> Consultas { get; set; }
+    public DbSet<Pagamento> Pagamentos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,5 +55,28 @@ public class AppDbContext : DbContext
                   .HasForeignKey(c => c.PacienteId)
                   .OnDelete(DeleteBehavior.Restrict); // Não apaga consultas em cascata
         });
+
+      // ── Configuração: Pagamento ────────────────────────────
+      modelBuilder.Entity<Pagamento>(entity =>
+      {
+        entity.ToTable("Pagamentos");
+        entity.HasKey(p => p.Id);
+
+        entity.Property(p => p.Valor).HasColumnType("decimal(10,2)");
+        entity.Property(p => p.Observacao).HasMaxLength(300);
+
+        entity.Property(p => p.FormaPagamento)
+            .HasConversion<int>()
+            .IsRequired();
+
+        entity.Property(p => p.StatusPagamento)
+            .HasConversion<int>()
+            .IsRequired();
+
+        entity.HasOne(p => p.Consulta)
+            .WithMany(c => c.Pagamentos)
+            .HasForeignKey(p => p.ConsultaId)
+            .OnDelete(DeleteBehavior.Restrict);
+      });
     }
 }
