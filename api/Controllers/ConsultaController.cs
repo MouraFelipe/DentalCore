@@ -15,6 +15,7 @@ namespace DentalCore.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public class ConsultaController : ControllerBase
     {
         private readonly AppDbContext _context;

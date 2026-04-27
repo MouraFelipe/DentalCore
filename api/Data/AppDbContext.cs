@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     // ── DbSets (Tabelas) ───────────────────────────────────────
     public DbSet<Paciente> Pacientes { get; set; }
     public DbSet<Consulta> Consultas { get; set; }
+    public DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +54,18 @@ public class AppDbContext : DbContext
                   .WithMany(p => p.Consultas)
                   .HasForeignKey(c => c.PacienteId)
                   .OnDelete(DeleteBehavior.Restrict); // Não apaga consultas em cascata
+        });
+
+        // ── Configuração: Usuario ─────────────────────────────
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            entity.ToTable("Usuarios");
+            entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.Email).IsUnique();
+            entity.Property(u => u.Nome).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.SenhaHash).IsRequired();
+            entity.Property(u => u.Role).HasConversion<int>().IsRequired();
         });
     }
 }

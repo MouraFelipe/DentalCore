@@ -14,6 +14,7 @@ namespace DentalCore.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public class PacienteController : ControllerBase
     {
         private readonly AppDbContext _context;

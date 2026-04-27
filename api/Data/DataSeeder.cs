@@ -8,6 +8,20 @@ public static class DataSeeder
 {
     public static void Seed(AppDbContext context)
     {
+        // Só executa se a tabela de Usuarios estiver vazia
+        if (!context.Usuarios.Any())
+        {
+            context.Usuarios.Add(new Usuario
+            {
+                Nome = "Administrador",
+                Email = "admin@dental.com",
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                Role = Role.Admin,
+                DataCadastro = DateTime.UtcNow
+            });
+            context.SaveChanges();
+        }
+
         // Só executa se a tabela de Pacientes estiver vazia
         if (context.Pacientes.Any()) return;
 
