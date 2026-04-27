@@ -5,10 +5,14 @@ import '../models/api_response.dart';
 import '../models/consulta_model.dart';
 import '../models/dashboard_model.dart';
 import '../models/paciente_model.dart';
+import '../models/auth_model.dart';
 
 /// Serviço central de comunicação com a API DentalCore (.NET 8).
 class ApiService {
   late final Dio _dio;
+  String? _token;
+
+  void setToken(String? token) => _token = token;
 
   // Ajustado para a porta 5273 conforme launchSettings.json do backend
   static String get _baseUrl {
@@ -28,11 +32,36 @@ class ApiService {
       ),
     );
 
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        if (_token != null) {
+          options.headers['Authorization'] = 'Bearer $_token';
+        }
+        return handler.next(options);
+      },
+    ));
+
     _dio.interceptors.add(LogInterceptor(
       requestBody:  true,
       responseBody: true,
       logPrint:     (obj) => debugPrint('[API] $obj'),
     ));
+  }
+
+  // ── AUTH ──────────────────────────────────────────────────────────────────
+  Future<ApiResponse<AuthModel>> login(String email, String password) async {
+    try {
+      final response = await _dio.post('/auth/login', data: {
+        'email': email,
+        'password': password,
+      });
+      return ApiResponse<AuthModel>.fromJson(
+        response.data,
+        (dados) => AuthModel.fromJson(dados),
+      );
+    } on DioException catch (e) {
+      return _tratarErro<AuthModel>(e);
+    }
   }
 
   // ── PACIENTES ─────────────────────────────────────────────────────────────

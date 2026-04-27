@@ -1,4 +1,3 @@
-using DentalCore.API.Common;
 using DentalCore.API.Data;
 using DentalCore.API.DTOs.Auth;
 using DentalCore.API.Services;

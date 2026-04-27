@@ -4,47 +4,47 @@ import '../services/api_service.dart';
 
 class ConsultaProvider with ChangeNotifier {
   final ApiService _apiService;
-  List<ConsultaModel> _consultas = [];
+  List<ConsultaModel> _consultasDoDia = [];
   bool _isLoading = false;
-  DateTime _diaSelecionado = DateTime.now();
-  String? _erro;
+  DateTime _dataSelecionada = DateTime.now();
+  String? _errorMessage;
 
   ConsultaProvider(this._apiService);
 
-  List<ConsultaModel> get consultas => _consultas;
+  List<ConsultaModel> get consultas => _consultasDoDia;
   bool get isLoading => _isLoading;
-  DateTime get diaSelecionado => _diaSelecionado;
-  String? get erro => _erro;
+  DateTime get dataSelecionada => _dataSelecionada;
+  String? get errorMessage => _errorMessage;
 
-  Future<void> fetchConsultas(DateTime data) async {
-    _diaSelecionado = data;
+  Future<void> carregarConsultas(DateTime data) async {
+    _dataSelecionada = data;
     _isLoading = true;
-    _erro = null;
+    _errorMessage = null;
     notifyListeners();
 
     final response = await _apiService.getConsultasDoDia(data);
     
     if (response.sucesso) {
-      _consultas = response.dados ?? [];
+      _consultasDoDia = response.dados ?? [];
     } else {
-      _erro = response.mensagem;
+      _errorMessage = response.mensagem;
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<bool> atualizarStatus(int id, int novoStatus) async {
+  Future<bool> atualizarStatusConsulta(int id, int novoStatus) async {
     final response = await _apiService.atualizarStatus(id, novoStatus);
     if (response.sucesso) {
-      final index = _consultas.indexWhere((c) => c.id == id);
+      final index = _consultasDoDia.indexWhere((c) => c.id == id);
       if (index != -1) {
-        _consultas[index] = response.dados!;
+        _consultasDoDia[index] = response.dados!;
         notifyListeners();
       }
       return true;
     }
-    _erro = response.mensagem;
+    _errorMessage = response.mensagem;
     notifyListeners();
     return false;
   }

@@ -7,9 +7,11 @@ import 'theme/app_theme.dart';
 import 'providers/paciente_provider.dart';
 import 'providers/consulta_provider.dart';
 import 'providers/dashboard_provider.dart';
+import 'providers/login_provider.dart';
+import 'pages/dashboard/dashboard_page.dart';
 import 'pages/agenda_page.dart';
-import 'pages/dashboard_page.dart';
 import 'pages/pacientes_page.dart';
+import 'pages/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,16 +29,31 @@ class DentalCoreApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<ApiService>.value(value: apiService),
-        ChangeNotifierProvider(create: (_) => PacienteProvider(apiService)),
-        ChangeNotifierProvider(create: (_) => ConsultaProvider(apiService)),
-        ChangeNotifierProvider(create: (_) => DashboardProvider(apiService)),
+        ChangeNotifierProvider(create: (_) => LoginProvider(apiService)),
+        ChangeNotifierProxyProvider<LoginProvider, PacienteProvider>(
+          create: (_) => PacienteProvider(apiService),
+          update: (_, login, prev) => prev ?? PacienteProvider(apiService),
+        ),
+        ChangeNotifierProxyProvider<LoginProvider, ConsultaProvider>(
+          create: (_) => ConsultaProvider(apiService),
+          update: (_, login, prev) => prev ?? ConsultaProvider(apiService),
+        ),
+        ChangeNotifierProxyProvider<LoginProvider, DashboardProvider>(
+          create: (_) => DashboardProvider(apiService),
+          update: (_, login, prev) => prev ?? DashboardProvider(apiService),
+        ),
       ],
       child: MaterialApp(
         title: 'DentalCore',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
+        theme: AppTheme.light, // Corrigido para .light
         locale: const Locale('pt', 'BR'),
-        home: const MainWrapper(),
+        home: Consumer<LoginProvider>(
+          builder: (context, login, _) {
+            // Se logado, vai para o Dashboard que agora tem sua própria navegação via Sidebar
+            return login.isAuthenticated ? const DashboardPage() : const LoginPage();
+          },
+        ),
       ),
     );
   }

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/paciente_provider.dart';
 import '../models/paciente_model.dart';
-import '../theme/app_theme.dart';
+import '../theme/app_colors.dart';
 
 class PacientesPage extends StatefulWidget {
   const PacientesPage({super.key});
@@ -26,8 +26,12 @@ class _PacientesPageState extends State<PacientesPage> {
     final provider = context.watch<PacienteProvider>();
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Pacientes'),
+        title: Text(
+          'Pacientes',
+          style: GoogleFonts.manrope(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -49,6 +53,7 @@ class _PacientesPageState extends State<PacientesPage> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _mostrarDialogoNovoPaciente(context),
+        backgroundColor: AppColors.gold,
         child: const Icon(Icons.person_add, color: Colors.white),
       ),
     );
@@ -59,9 +64,9 @@ class _PacientesPageState extends State<PacientesPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.people_outline, size: 80, color: AppTheme.secondaryGold.withOpacity(0.5)),
+          Icon(Icons.people_outline, size: 80, color: AppColors.gold.withOpacity(0.5)),
           const SizedBox(height: 16),
-          const Text('Nenhum paciente cadastrado.', style: TextStyle(color: AppTheme.textLight, fontSize: 16)),
+          Text('Nenhum paciente cadastrado.', style: GoogleFonts.manrope(color: AppColors.textSecondary, fontSize: 16)),
         ],
       ),
     );
@@ -73,37 +78,37 @@ class _PacientesPageState extends State<PacientesPage> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.withOpacity(0.1)),
+        side: const BorderSide(color: AppColors.divider),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: AppTheme.primaryNavy.withOpacity(0.1),
-          child: Text(paciente.nome[0].toUpperCase(), style: const TextStyle(color: AppTheme.primaryNavy, fontWeight: FontWeight.bold)),
+          backgroundColor: AppColors.navy.withOpacity(0.1),
+          child: Text(paciente.nome[0].toUpperCase(), style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.bold)),
         ),
-        title: Text(paciente.nome, style: GoogleFonts.manrope(fontWeight: FontWeight.bold, color: AppTheme.textDark)),
+        title: Text(paciente.nome, style: GoogleFonts.manrope(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.badge_outlined, size: 14, color: AppTheme.textLight),
+                const Icon(Icons.badge_outlined, size: 14, color: AppColors.textSecondary),
                 const SizedBox(width: 4),
-                Text(paciente.cpf, style: TextStyle(fontSize: 12, color: AppTheme.textLight)),
+                Text(paciente.cpf, style: GoogleFonts.manrope(fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
             const SizedBox(height: 2),
             Row(
               children: [
-                Icon(Icons.phone_outlined, size: 14, color: AppTheme.textLight),
+                const Icon(Icons.phone_outlined, size: 14, color: AppColors.textSecondary),
                 const SizedBox(width: 4),
-                Text(paciente.telefone, style: TextStyle(fontSize: 12, color: AppTheme.textLight)),
+                Text(paciente.telefone, style: GoogleFonts.manrope(fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ],
         ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.backgroundBeige),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textDisabled),
         onTap: () {
           // Detalhes do paciente
         },
