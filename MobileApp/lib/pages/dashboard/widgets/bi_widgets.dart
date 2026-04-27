@@ -9,23 +9,38 @@ class FilaAtendimentoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.watch<DashboardProvider>();
-    final fila = p.fila;
+    // Otimização: Seleção granular de estado
+    final isLoading = context.select<DashboardProvider, bool>((p) => p.isLoading);
+    final fila      = context.select<DashboardProvider, List<FilaPaciente>>((p) => p.fila);
+
+    if (isLoading && fila.isEmpty) return _buildSkeleton();
 
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.divider)),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Fila de Atendimento', style: GoogleFonts.manrope(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w700)),
+              Text(
+                'Fila de Atendimento',
+                style: GoogleFonts.manrope(
+                  color: AppColors.textPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               _LiveBadge(),
             ],
           ),
           const SizedBox(height: 16),
+          // Cabeçalho da Tabela
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Row(
@@ -39,8 +54,51 @@ class FilaAtendimentoCard extends StatelessWidget {
           const SizedBox(height: 6),
           const Divider(height: 1, color: AppColors.divider),
           const SizedBox(height: 4),
-          ...fila.map((p) => _FilaRow(paciente: p)),
+          
+          // Lista de Pacientes (Otimizada para Hit Test e Performance)
+          if (fila.isEmpty)
+            _buildEmptyFila()
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: fila.length,
+              itemBuilder: (context, index) {
+                return _FilaRow(paciente: fila[index]);
+              },
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyFila() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(Icons.check_circle_outline_rounded, size: 40, color: AppColors.success.withValues(alpha: 0.3)),
+            const SizedBox(height: 10),
+            Text(
+              'Todos os pacientes atendidos!',
+              style: GoogleFonts.manrope(color: AppColors.textSecondary, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeleton() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.divider)),
+      child: Column(
+        children: List.generate(5, (_) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Container(height: 40, decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(8))),
+        )),
       ),
     );
   }
@@ -65,7 +123,48 @@ class _FilaRow extends StatelessWidget {
   final FilaPaciente paciente; const _FilaRow({required this.paciente});
   @override Widget build(BuildContext context) {
     final cor = Color(paciente.cor);
-    return Padding(padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4), child: Row(children: [Expanded(flex: 4, child: Row(children: [CircleAvatar(radius: 16, backgroundColor: cor.withOpacity(0.15), child: Text(paciente.iniciais, style: GoogleFonts.manrope(color: cor, fontSize: 10, fontWeight: FontWeight.w800))), const SizedBox(width: 10), Flexible(child: Text(paciente.nome, style: GoogleFonts.manrope(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis))])), Expanded(flex: 4, child: Text(paciente.procedimento, style: GoogleFonts.manrope(color: AppColors.textSecondary, fontSize: 12), overflow: TextOverflow.ellipsis)), Expanded(flex: 3, child: _StatusLabel(status: paciente.status))]));
+    return InkWell(
+      onTap: () {},
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 4,
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: cor.withValues(alpha: 0.15),
+                    child: Text(paciente.iniciais, style: GoogleFonts.manrope(color: cor, fontSize: 10, fontWeight: FontWeight.w800)),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      paciente.nome,
+                      maxLines: 1,
+                      style: GoogleFonts.manrope(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 4,
+              child: Text(
+                paciente.procedimento,
+                maxLines: 1,
+                style: GoogleFonts.manrope(color: AppColors.textSecondary, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(flex: 3, child: _StatusLabel(status: paciente.status)),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -100,7 +199,7 @@ class _ProgressBarState extends State<_ProgressBar> with SingleTickerProviderSta
   @override void dispose() { _ctrl.dispose(); super.dispose(); }
   @override Widget build(BuildContext context) {
     final cor = Color(widget.meta.cor);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(widget.meta.label, style: GoogleFonts.manrope(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w500)), AnimatedBuilder(animation: _anim, builder: (_, __) => Text('${(_anim.value * 100).toInt()}%', style: GoogleFonts.manrope(color: cor, fontSize: 12, fontWeight: FontWeight.w800)))]), const SizedBox(height: 6), ClipRRect(borderRadius: BorderRadius.circular(6), child: AnimatedBuilder(animation: _anim, builder: (_, __) => LinearProgressIndicator(value: _anim.value, minHeight: 7, backgroundColor: AppColors.divider, valueColor: AlwaysStoppedAnimation<Color>(cor))))]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(widget.meta.label, style: GoogleFonts.manrope(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w500)), AnimatedBuilder(animation: _anim, builder: (context, child) => Text('${(_anim.value * 100).toInt()}%', style: GoogleFonts.manrope(color: cor, fontSize: 12, fontWeight: FontWeight.w800)))]), const SizedBox(height: 6), ClipRRect(borderRadius: BorderRadius.circular(6), child: AnimatedBuilder(animation: _anim, builder: (context, child) => LinearProgressIndicator(value: _anim.value, minHeight: 7, backgroundColor: AppColors.divider, valueColor: AlwaysStoppedAnimation<Color>(cor))))]);
   }
 }
 

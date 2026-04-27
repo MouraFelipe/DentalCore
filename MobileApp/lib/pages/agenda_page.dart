@@ -131,9 +131,8 @@ class _AgendaPageState extends State<AgendaPage> {
     );
     if (picked != null && picked != _selectedDate) {
       setState(() => _selectedDate = picked);
-      if (mounted) {
-        context.read<ConsultaProvider>().carregarConsultas(picked);
-      }
+      if (!mounted) return;
+      context.read<ConsultaProvider>().carregarConsultas(picked);
     }
   }
 
@@ -174,7 +173,7 @@ class _ConsultaCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.navy.withOpacity(0.05),
+                    color: AppColors.navy.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -288,9 +287,9 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         label.toUpperCase(),
@@ -324,7 +323,7 @@ class _ActionButton extends StatelessWidget {
       ),
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        backgroundColor: color.withOpacity(0.1),
+        backgroundColor: color.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );

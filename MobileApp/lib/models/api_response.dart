@@ -1,4 +1,4 @@
-/// Espelho exato do ApiResponse<T> do backend C#.
+/// Espelho exato do `ApiResponse<T>` do backend C#.
 /// Envelope padrão de TODAS as respostas da API.
 class ApiResponse<T> {
   final bool sucesso;

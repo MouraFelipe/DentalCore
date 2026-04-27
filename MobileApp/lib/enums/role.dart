@@ -1,5 +1,5 @@
 enum Role {
-  Admin,
-  Dentista,
-  Recepcionista,
+  admin,
+  dentista,
+  recepcionista,
 }

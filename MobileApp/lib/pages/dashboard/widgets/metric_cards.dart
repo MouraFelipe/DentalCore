@@ -9,9 +9,8 @@ class MetricCardsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Nota: Mudamos para watch ou select conforme o novo DashboardProvider
-    final p = context.watch<DashboardProvider>();
-    final m = p.metrics;
+    // Otimização: Rebuild apenas quando as métricas mudarem
+    final m = context.select<DashboardProvider, DashboardMetrics>((p) => p.metrics);
 
     return Row(
       children: [
@@ -110,7 +109,7 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColors.navy, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: AppColors.navy.withOpacity(0.25), blurRadius: 16, offset: const Offset(0, 6))]),
+      decoration: BoxDecoration(color: AppColors.navy, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: AppColors.navy.withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 6))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -139,7 +138,7 @@ class _BaseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: tagColor.withOpacity(0.12), width: 1.5)),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: tagColor.withValues(alpha: 0.12), width: 1.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -152,7 +151,7 @@ class _BaseCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(valor, style: GoogleFonts.manrope(color: tagColor, fontSize: 38, fontWeight: FontWeight.w900, height: 1)),
-          Text(label, style: GoogleFonts.manrope(color: tagColor.withOpacity(0.65), fontSize: 13, fontWeight: FontWeight.w600)),
+          Text(label, style: GoogleFonts.manrope(color: tagColor.withValues(alpha: 0.65), fontSize: 13, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           Text(sublabel, style: GoogleFonts.manrope(color: sublabelColor, fontSize: 11, fontWeight: FontWeight.w500)),
         ],

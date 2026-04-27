@@ -17,7 +17,9 @@ class _PacientesPageState extends State<PacientesPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PacienteProvider>().fetchPacientes();
+      if (mounted) {
+        context.read<PacienteProvider>().fetchPacientes();
+      }
     });
   }
 
@@ -64,7 +66,7 @@ class _PacientesPageState extends State<PacientesPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.people_outline, size: 80, color: AppColors.gold.withOpacity(0.5)),
+          Icon(Icons.people_outline, size: 80, color: AppColors.gold.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text('Nenhum paciente cadastrado.', style: GoogleFonts.manrope(color: AppColors.textSecondary, fontSize: 16)),
         ],
@@ -83,7 +85,7 @@ class _PacientesPageState extends State<PacientesPage> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: AppColors.navy.withOpacity(0.1),
+          backgroundColor: AppColors.navy.withValues(alpha: 0.1),
           child: Text(paciente.nome[0].toUpperCase(), style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.bold)),
         ),
         title: Text(paciente.nome, style: GoogleFonts.manrope(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
@@ -158,10 +160,14 @@ class _PacientesPageState extends State<PacientesPage> {
                   cpf: cpfController.text,
                   telefone: telefoneController.text,
                 );
+                
                 final sucesso = await context.read<PacienteProvider>().adicionarPaciente(novo);
-                if (sucesso && mounted) {
+                
+                if (context.mounted && sucesso) {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Paciente cadastrado com sucesso!')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Paciente cadastrado com sucesso!')),
+                  );
                 }
               }
             },

@@ -33,7 +33,7 @@ class Sidebar extends StatelessWidget {
             child: ListView.separated(
               padding:          const EdgeInsets.symmetric(horizontal: 12),
               itemCount:        _items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 2),
+              separatorBuilder: (_, index) => const SizedBox(height: 2),
               itemBuilder: (_, i) => _NavItem(
                 icon:     _items[i].$1,
                 label:    _items[i].$2,
@@ -78,7 +78,7 @@ class _Logo extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color:       AppColors.gold.withOpacity(0.4),
+                  color:       AppColors.gold.withValues(alpha: 0.4),
                   blurRadius:  8,
                   offset:      const Offset(0, 4),
                 ),
@@ -138,13 +138,13 @@ class _NavItem extends StatelessWidget {
         child: InkWell(
           onTap:        onTap,
           borderRadius: BorderRadius.circular(10),
-          splashColor:  AppColors.gold.withOpacity(0.1),
+          splashColor:  AppColors.gold.withValues(alpha: 0.1),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
               color: selected
-                  ? AppColors.gold.withOpacity(0.12)
+                  ? AppColors.gold.withValues(alpha: 0.12)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
               border: selected
